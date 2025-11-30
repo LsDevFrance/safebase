@@ -1,4 +1,18 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SafeBase
+
+## Introduction
+
+Dans le monde de l'entreprise, la gestion des bases de données et la sécurisation des données sont des enjeux cruciaux. Les données sont souvent l'un des actifs les plus précieux pour une organisation et leur perte peut engendrer des conséquences désastreuses. Pour cette raison, il est essentiel de mettre en place des systèmes permettant de garantir la sauvegarde régulière des données et d'assurer leur restauration en cas de besoin.
+
+## Objectif du Projet
+
+Le projet vise à développer une solution complète de gestion de la sauvegarde et de la restauration de bases de données sous forme d'une API REST. Cette solution devra répondre aux besoins suivants :
+
+- **Ajout de base de données** : Ajouter une connexion à une base de données.
+- **Automatisation des sauvegardes régulières** : Planifier et effectuer des sauvegardes périodiques des bases de données, en utilisant le standard cron et les utilitaires système de MySQL et PostgreSQL.
+- **Gestion des versions** : Conserver l'historique des différentes versions sauvegardées, avec des options pour choisir quelle version restaurer.
+- **Surveillance et alertes** : Générer des alertes en cas de problème lors des processus de sauvegarde ou de restauration.
+- **Interface utilisateur** : Proposer une interface simple pour permettre aux utilisateurs de gérer facilement les processus de sauvegarde et de restauration.
 
 ## Getting Started
 
