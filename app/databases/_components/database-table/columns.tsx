@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 import { deleteDatabaseAction } from "../../database.action";
 import type { DeleteDatabaseSchemaType } from "../database-form/add-database.schema";
 import { ConnectionStatus } from "./connection-status";
@@ -90,10 +91,6 @@ function ActionsCell({ database }: { database: Database }) {
     console.log("Forcer sauvegarde pour:", database.id);
   };
 
-  const handleViewDetails = () => {
-    console.log("Voir détails pour:", database.id);
-  };
-
   const handleEdit = () => {
     console.log("Modifier:", database.id);
   };
@@ -117,8 +114,8 @@ function ActionsCell({ database }: { database: Database }) {
         <DropdownMenuItem onClick={handleForceBackup}>
           Forcer une sauvegarde
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleViewDetails}>
-          Voir les détails
+        <DropdownMenuItem asChild>
+          <Link href={`/databases/${database.id}`}>Voir les détails</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleEdit}>Modifier</DropdownMenuItem>
