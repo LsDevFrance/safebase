@@ -16,7 +16,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { deleteDatabaseAction } from "../../database.action";
+import {
+  deleteDatabaseAction,
+  forceDatabaseBackupAction,
+} from "../../database.action";
 import type { DeleteDatabaseSchemaType } from "../database-form/add-database.schema";
 import { ConnectionStatus } from "./connection-status";
 
@@ -87,8 +90,27 @@ function ActionsCell({ database }: { database: Database }) {
     },
   });
 
+  const backupMutation = useMutation({
+    mutationFn: async (databaseId: string) => {
+      return await forceDatabaseBackupAction(databaseId);
+    },
+    onSuccess: (result) => {
+      if (result.success) {
+        toast.success("Sauvegarde créée avec succès");
+        router.refresh();
+      } else {
+        toast.error(result.error || "Erreur lors de la sauvegarde");
+      }
+    },
+    onError: (error) => {
+      toast.error(
+        error.message || "Une erreur est survenue lors de la sauvegarde"
+      );
+    },
+  });
+
   const handleForceBackup = () => {
-    console.log("Forcer sauvegarde pour:", database.id);
+    backupMutation.mutate(database.id);
   };
 
   const handleEdit = () => {
@@ -111,8 +133,13 @@ function ActionsCell({ database }: { database: Database }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem onClick={handleForceBackup}>
-          Forcer une sauvegarde
+        <DropdownMenuItem
+          onClick={handleForceBackup}
+          disabled={backupMutation.isPending}
+        >
+          {backupMutation.isPending
+            ? "Sauvegarde en cours..."
+            : "Forcer une sauvegarde"}
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={`/databases/${database.id}`}>Voir les détails</Link>

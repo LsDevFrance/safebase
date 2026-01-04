@@ -1,6 +1,31 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { getDashboardStats } from "@/lib/prisma/dashboard-query";
+import { BackupChart } from "./_components/backup-chart";
 
-export default function Home() {
+export default async function Home() {
+  const stats = await getDashboardStats();
+
+  const formatLastBackup = (date: Date | null | undefined) => {
+    if (!date) return "-";
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `Il y a ${days}j`;
+    if (hours > 0) return `Il y a ${hours}h`;
+    if (minutes > 0) return `Il y a ${minutes}min`;
+    return "À l'instant";
+  };
+
   return (
     <div className="flex flex-col h-full">
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -15,34 +40,42 @@ export default function Home() {
             <h3 className="text-sm font-medium text-muted-foreground">
               Bases de données
             </h3>
-            <p className="text-2xl font-bold mt-2">0</p>
+            <p className="text-2xl font-bold mt-2">{stats.totalDatabases}</p>
           </div>
           <div className="rounded-lg border bg-card p-6">
             <h3 className="text-sm font-medium text-muted-foreground">
-              Sauvegardes actives
+              Sauvegardes réussies
             </h3>
-            <p className="text-2xl font-bold mt-2">0</p>
+            <p className="text-2xl font-bold mt-2">{stats.activeBackups}</p>
           </div>
           <div className="rounded-lg border bg-card p-6">
             <h3 className="text-sm font-medium text-muted-foreground">
               Dernière sauvegarde
             </h3>
-            <p className="text-2xl font-bold mt-2">-</p>
+            <p className="text-2xl font-bold mt-2">
+              {formatLastBackup(stats.lastBackup)}
+            </p>
           </div>
           <div className="rounded-lg border bg-card p-6">
             <h3 className="text-sm font-medium text-muted-foreground">
               Alertes
             </h3>
-            <p className="text-2xl font-bold mt-2">0</p>
+            <p className="text-2xl font-bold mt-2 text-destructive">
+              {stats.failedBackups}
+            </p>
           </div>
         </div>
-        <div className="flex-1 rounded-lg border bg-card p-6">
-          <h2 className="text-lg font-semibold mb-4">Bienvenue sur SafeBase</h2>
-          <p className="text-muted-foreground">
-            Commencez par ajouter une base de données pour démarrer la gestion
-            de vos sauvegardes.
-          </p>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Historique des sauvegardes</CardTitle>
+            <CardDescription>
+              Évolution des sauvegardes sur les 7 derniers jours
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BackupChart data={stats.chartData} />
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

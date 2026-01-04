@@ -1,5 +1,6 @@
 "use server";
 
+import { backupDatabase } from "@/lib/database/backup-database";
 import { testDatabaseConnection } from "@/lib/database/test-connection";
 import prisma from "@/lib/prisma";
 import type {
@@ -136,4 +137,44 @@ export async function testConnectionAction(
     password: database.password,
     database: database.database,
   });
+}
+
+export async function forceDatabaseBackupAction(
+  databaseId: string
+): Promise<{ success: boolean; error?: string; backupId?: string }> {
+  const database = await prisma.database.findUnique({
+    where: {
+      id: databaseId,
+    },
+  });
+
+  if (!database) {
+    return { success: false, error: "Base de données non trouvée" };
+  }
+
+  const result = await backupDatabase(database);
+
+  if (!result.success) {
+    await prisma.backup.create({
+      data: {
+        databaseId: database.id,
+        name: result.fileName || "backup-failed",
+        url: result.filePath || "",
+        error: true,
+      },
+    });
+
+    return { success: false, error: result.error };
+  }
+
+  const backup = await prisma.backup.create({
+    data: {
+      databaseId: database.id,
+      name: result.fileName!,
+      url: result.filePath!,
+      error: false,
+    },
+  });
+
+  return { success: true, backupId: backup.id };
 }
